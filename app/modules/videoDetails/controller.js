@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const VideoDetails = mongoose.model("VideoDetails");
-const Serivce = require("./service");
-const SerivceLike = require("../likesVideos/service");
+const Service = require("./service");
+const ServiceLike = require("../likesVideos/service");
 const constants = require("../../utils/constants");
 const bcrypt = require("bcryptjs");
 const { validateCreate, validateEdit } = require("../../models/videoDetails");
 
 const getMany = (req, res) => {
-  Serivce.getMany()
+  Service.getMany()
     .then((data) => {
       res.status(200).json(data);
     })
@@ -18,7 +18,7 @@ const getMany = (req, res) => {
 
 const getManyByUser = (req, res) => {
   let query = { created_by: req.user.id };
-  Serivce.getMany(query)
+  Service.getMany(query)
     .then((data) => {
       res.status(200).json(data);
     })
@@ -36,32 +36,32 @@ const likevideo = async (req, res) => {
     created_by: req.user.id,
   };
 
-  SerivceLike.getOneWhere(queryLike).then(async (data) => {
+  ServiceLike.getOneWhere(queryLike).then(async (data) => {
     if (data) {
       if (status === data.status) {
         if(status === 1) 
-          (await Serivce.update(video_id, { $inc: { likes: -1 } }));
+          (await Service.update(video_id, { $inc: { likes: -1 } }));
         if(status === -1)
-          (await Serivce.update(video_id, { $inc: { disLikes: -1 } }));
-        await SerivceLike.deleteOne(data._id);
+          (await Service.update(video_id, { $inc: { disLikes: -1 } }));
+        await ServiceLike.deleteOne(data._id);
       } else {
         if(status === 1 )
-          (await Serivce.update(video_id, {
+          (await Service.update(video_id, {
             $inc: { likes: 1, disLikes: -1 },
           }));
         if(status === -1 )
-          (await Serivce.update(video_id, {
+          (await Service.update(video_id, {
             $inc: { likes: -1, disLikes: 1 },
           }));
-        await SerivceLike.update(data._id, { status });
+        await ServiceLike.update(data._id, { status });
       }
     } else {
-      if(status === 1 ) (await Serivce.update(video_id, { $inc: { likes: 1 } }));
+      if(status === 1 ) (await Service.update(video_id, { $inc: { likes: 1 } }));
       if(status === -1 )
-        (await Serivce.update(video_id, { $inc: { disLikes: 1 } }));
-      await SerivceLike.create({ ...queryLike, status });
+        (await Service.update(video_id, { $inc: { disLikes: 1 } }));
+      await ServiceLike.create({ ...queryLike, status });
     }
-    let returnData = await Serivce.getOne(video_id).then(data => {
+    let returnData = await Service.getOne(video_id).then(data => {
       return {
         likes: data.likes,
         disLikes: data.disLikes,
@@ -74,7 +74,7 @@ const likevideo = async (req, res) => {
 
 const getOne = (req, res) => {
   let id = req.params.id;
-  Serivce.getOne(id)
+  Service.getOne(id)
     .then((data) => {
       return res.status(constants.CODE.GET_OK).json(data);
     })
@@ -105,7 +105,7 @@ const create = async (req, res) => {
       }, {});
     return res.status(constants.CODE.BAD_REQUEST).json(errors);
   } else {
-    Serivce.create(data)
+    Service.create(data)
       .then((data) => {
         return res.status(constants.CODE.CREATE_OK).json({
           message: "create successful",
@@ -135,7 +135,7 @@ const update = (req, res) => {
     if (req.files && req.files.img) {
       data.img = req.files.img[0];
     } else delete data.img;
-    Serivce.update(id, data)
+    Service.update(id, data)
       .then((data) => {
         return res.status(constants.CODE.CREATE_OK).json({
           message: "edit successful",
@@ -149,7 +149,7 @@ const update = (req, res) => {
 
 const deleteOne = (req, res) => {
   let id = req.params.id;
-  Serivce.deleteOne(id)
+  Service.deleteOne(id)
     .then(() => {
       return res.status(constants.CODE.DELETE_OK).json({
         message: "delete successful",
@@ -162,7 +162,7 @@ const deleteOne = (req, res) => {
 
 const deleteMany = (req, res) => {
   let ids = req.body.ids;
-  Serivce.deleteMany(ids)
+  Service.deleteMany(ids)
     .then(() => {
       return res.status(constants.CODE.DELETE_OK).json({
         message: "delete successful",

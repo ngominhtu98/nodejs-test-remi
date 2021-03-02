@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
-const Serivce = require("./service");
-const SerivceLike = require("../likesVideos/service");
-const SerivceVideo = require("../videoDetails/service");
-const SerivceUsers = require("../users/service");
+const Service = require("./service");
+const ServiceLike = require("../likesVideos/service");
+const ServiceVideo = require("../videoDetails/service");
+const ServiceUsers = require("../users/service");
 
 const constants = require("../../utils/constants");
 const bcrypt = require("bcryptjs");
 const { validateCreate, validateEdit } = require("../../models/notifications");
 
 const getMany = async (req, res) => {
-  Serivce.getMany()
+  Service.getMany()
     .then((data) => {
       res.status(200).json(data);
     })
@@ -20,7 +20,7 @@ const getMany = async (req, res) => {
 
 const getManyByUser = async (req, res) => {
   let query = [{ created_by: req.user._id }, { receiver_by: req.user._id }];
-  await Serivce.getManyByUser(query)
+  await Service.getManyByUser(query)
     .then(async (data) => {
       data = JSON.parse(JSON.stringify(data));
       for (let i = 0; i < data.length; i++) {
@@ -29,7 +29,7 @@ const getManyByUser = async (req, res) => {
           item.isMeShare = true;
         }
         if (item.videoDetail) {
-          let like = await SerivceLike.getOneWhere({video_id:item.video_id,created_by:req.user._id});
+          let like = await ServiceLike.getOneWhere({video_id:item.video_id,created_by:req.user._id});
           item.videoDetail.liked = like ? like.status : 0;
         }
       }
@@ -41,7 +41,7 @@ const getManyByUser = async (req, res) => {
 };
 
 const getJoinMany = async (req, res) => {
-  Serivce.getJoinMany()
+  Service.getJoinMany()
     .then((data) => {
       res.status(200).json(data);
     })
@@ -52,7 +52,7 @@ const getJoinMany = async (req, res) => {
 
 const getOne = (req, res) => {
   let id = req.params.id;
-  Serivce.getOne(id)
+  Service.getOne(id)
     .then((data) => {
       return res.status(constants.CODE.GET_OK).json(data);
     })
@@ -76,16 +76,16 @@ const create = (req, res) => {
       }, {});
     return res.status(constants.CODE.BAD_REQUEST).json(errors);
   } else {
-    SerivceVideo.create({
+    ServiceVideo.create({
       created_by: req.user._id,
       title: reqData.title,
       description: reqData.description,
       url: reqData.url,
     })
       .then((data) => {
-        SerivceUsers.getByEmail(reqData.receiver_by)
+        ServiceUsers.getByEmail(reqData.receiver_by)
           .then((user) => {
-            Serivce.create({
+            Service.create({
               video_id: data._id,
               created_by: req.user._id,
               receiver_by: user[0]._id,
@@ -128,7 +128,7 @@ const update = (req, res) => {
     if (req.files && req.files.img) {
       data.img = req.files.img[0];
     } else delete data.img;
-    Serivce.update(id, data)
+    Service.update(id, data)
       .then((data) => {
         return res.status(constants.CODE.CREATE_OK).json({
           message: "edit successful",
@@ -142,7 +142,7 @@ const update = (req, res) => {
 
 const deleteOne = (req, res) => {
   let id = req.params.id;
-  Serivce.deleteOne(id)
+  Service.deleteOne(id)
     .then(() => {
       return res.status(constants.CODE.DELETE_OK).json({
         message: "delete successful",
@@ -155,7 +155,7 @@ const deleteOne = (req, res) => {
 
 const deleteMany = (req, res) => {
   let ids = req.body.ids;
-  Serivce.deleteMany(ids)
+  Service.deleteMany(ids)
     .then(() => {
       return res.status(constants.CODE.DELETE_OK).json({
         message: "delete successful",

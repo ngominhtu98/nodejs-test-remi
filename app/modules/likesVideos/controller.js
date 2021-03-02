@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const LikesVideos = mongoose.model("LikesVideos");
-const Serivce = require('./service');
+const Service = require('./service');
 const constants = require('../../utils/constants')
 const bcrypt = require('bcryptjs');
 const { validateCreate, validateEdit } = require('../../models/likesVideos')
@@ -8,7 +8,7 @@ const { validateCreate, validateEdit } = require('../../models/likesVideos')
 
 const getOne = (req, res) => {
     let id = req.params.id;
-    Serivce.getOne(id).select("-password")
+    Service.getOne(id).select("-password")
         .then((data) => {
             return res.status(constants.CODE.GET_OK).json(data);
         })
@@ -31,7 +31,7 @@ const create = (req, res) => {
         return res.status(constants.CODE.BAD_REQUEST).json(errors);
     } else {
         data.password = bcrypt.hashSync(data.password, 10);
-        Serivce.create(data)
+        Service.create(data)
             .then((data) => {
                 return res.status(constants.CODE.CREATE_OK).json({
                     message: "create successful"
@@ -61,7 +61,7 @@ const update = (req, res) => {
         if (req.files && req.files.img) {
             data.img = req.files.img[0]
         } else delete data.img
-        Serivce.update(id, data)
+        Service.update(id, data)
             .then((data) => {
                 return res.status(constants.CODE.CREATE_OK).json({
                     message: "edit successful"
@@ -75,7 +75,7 @@ const update = (req, res) => {
 
 const deleteOne = (req, res) => {
     let id = req.params.id
-    Serivce.deleteOne(id)
+    Service.deleteOne(id)
         .then(() => {
             return res.status(constants.CODE.DELETE_OK).json({
                 message: "delete successful"

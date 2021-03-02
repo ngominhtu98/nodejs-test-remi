@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
-const UserSerivce = require('./service');
+const UserService = require('./service');
 const constants = require('../../utils/constants')
 const bcrypt = require('bcryptjs');
 const { validateCreateUser, validateEditUser } = require('../../models/users')
 
 const getMany = (req, res) => {
-    UserSerivce.getMany()
+    UserService.getMany()
         .then(data => {
             res.status(200).json(data)
         }).catch(err => {
@@ -16,7 +16,7 @@ const getMany = (req, res) => {
 
 const getOne = (req, res) => {
     let id = req.params.id;
-    UserSerivce.getOne(id)
+    UserService.getOne(id)
         .then((data) => {
             return res.status(constants.CODE.GET_OK).json(data);
         })
@@ -39,7 +39,7 @@ const create = (req, res) => {
         return res.status(constants.CODE.BAD_REQUEST).json(errors);
     } else {
         data.password = bcrypt.hashSync(data.password, 10);
-        UserSerivce.create(data)
+        UserService.create(data)
             .then((data) => {
                 return res.status(constants.CODE.CREATE_OK).json({
                     message: "create successful",
@@ -70,7 +70,7 @@ const update = (req, res) => {
         if (req.files && req.files.img) {
             data.img = req.files.img[0]
         } else delete data.img
-        UserSerivce.update(id, data)
+        UserService.update(id, data)
             .then((data) => {
                 return res.status(constants.CODE.CREATE_OK).json({
                     message: "edit successful"
@@ -84,7 +84,7 @@ const update = (req, res) => {
 
 const deleteOne = (req, res) => {
     let id = req.params.id
-    UserSerivce.deleteOne(id)
+    UserService.deleteOne(id)
         .then(() => {
             return res.status(constants.CODE.DELETE_OK).json({
                 message: "delete successful"
@@ -97,7 +97,7 @@ const deleteOne = (req, res) => {
 
 const deleteMany = (req, res) => {
     let ids = req.body.ids;
-    UserSerivce.deleteMany(ids)
+    UserService.deleteMany(ids)
         .then(() => {
             return res.status(constants.CODE.DELETE_OK).json({
                 message: "delete successful"
